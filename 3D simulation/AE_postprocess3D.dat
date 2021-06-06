@@ -1,0 +1,168 @@
+;后处理文�
+
+;===============================================================
+;最后计算能量等�
+def energy_magnitude													;最后计算能量等�
+	loop num_t (1,table.size(exptab_4))
+        if table.y(exptab_4,num_t) # 0
+            table.x(exptab_6,num_t)=table.x(exptab_4,num_t)
+            table.y(exptab_6,num_t)=2*(math.log(math.abs(table.y(exptab_4,num_t)))- 4.8)/3 			;log计算前delte_E取绝对�
+        end_if
+	end_loop
+end
+;绘制事件的效果图
+def AE_draw_ball
+	local mag_min = table.y(exptab_6,1)
+	local mag_max = table.y(exptab_6,1)
+	;预处�
+	loop local num_t (1,table.size(exptab_6))
+		local mag_draw = table.y(exptab_6,num_t)
+		mag_min = math.min(mag_min,mag_draw)
+		mag_max = math.max(mag_max,mag_draw)
+	end_loop
+	command
+    	geometry set AE_result
+		geometry delete
+	end_command
+	loop num_t (1, table.size(exptab_6))
+		local x_draw = table.x(exptab_10,num_t)
+		local y_draw = table.y(exptab_10,num_t)
+        local z_draw = table.y(exptab_11,num_t)
+        
+		mag_draw = table.y(exptab_6,num_t)
+		if mag_max # mag_min
+			local r_draw = r_min + (r_max-r_min)*(mag_draw-mag_min)/(mag_max-mag_min)
+		else
+			r_draw = (r_min + r_max)/2
+		end_if
+		io.out(r_draw)
+		if r_draw > 0
+			command
+				geometry generate group 'magnitude' sphere position (@x_draw,@y_draw,@z_draw ) rad @r_draw 
+			end_command
+		end_if
+	end_loop
+	local outc=geom.set.find('AE_result')
+	loop foreach local gp geom.poly.list(outc)
+		num_t = geom.poly.id(gp)
+		mag_draw = table.y(exptab_6,num_t)
+		geom.poly.extra(gp,1)=mag_draw
+	end_loop
+	io.out('finsh AE_draw')
+end
+;===============================================================
+;绘事件矩张量R值形状图
+def draw_ratio_R
+
+		local x_draw = table.x(exptab_10,num_h)
+		local y_draw = table.y(exptab_10,num_h)
+        local z_draw = table.y(exptab_11,num_h)
+		local r_draw = r_R
+
+        ;获取R�
+        local ratio_R = table.y(exptab_50,num_h)
+        if ration_R >= -100
+            if ratio_R < -30
+                command
+                    geometry generate group 'Implosional' sphere position (@x_draw,@y_draw,@z_draw ) rad @r_draw
+                end_command
+            else if ratio_R <= 30
+                local x_1 = x_draw - 1.1*r_draw
+                local x_2 = x_draw + 1.1*r_draw
+                local y_1 = y_draw - 1.1*r_draw
+                local y_2 = y_draw + 1.1*r_draw
+                local z_1 = z_draw - 1.1*r_draw
+                local z_2 = z_draw + 1.1*r_draw
+                command
+                    geometry polygon positions (@x_1, @y_1,@z_1) (@x_2, @y_1,@z_1) (@x_draw, @y_2,@z_1) group 'Shear' extra 1 @ratio_R
+                    geometry polygon positions (@x_draw, @y_draw,@z_2) (@x_1, @y_1,@z_1) (@x_2, @y_1,@z_1) group 'Shear' extra 1 @ratio_R
+                    geometry polygon positions (@x_draw, @y_draw,@z_2) (@x_2, @y_1,@z_1) (@x_draw, @y_2,@z_1) group 'Shear' extra 1 @ratio_R
+                    geometry polygon positions (@x_draw, @y_draw,@z_2) (@x_1, @y_1,@z_1) (@x_draw, @y_2,@z_1) group 'Shear' extra 1 @ratio_R
+                end_command
+            else if ratio_R <= 100
+                x_1 = x_draw - r_draw
+                x_2 = x_draw + r_draw
+                y_1 = y_draw - r_draw
+                y_2 = y_draw + r_draw
+                z_1 = z_draw - r_draw
+                z_2 = z_draw + r_draw
+                command 
+                    geometry generate group 'Tensile' box @x_1 @x_2  @y_1 @y_2  @z_1 @z_2
+                end_command
+            end_if
+        end_if
+
+end
+def draw_R_main
+	;删除现有的R形状
+	command
+        geometry set Tensor_R_result
+		geometry delete range group 'Implosional'
+		geometry delete range group 'Shear'
+		geometry delete range group 'Tensile'
+	end_command
+end
+;===============================================================
+;绘制事件矩张量图
+def make_vector
+	local _x1 = eig1*eig1x
+	local _y1 = -eig1*eig1y
+	local _x2 = eig2*eig2x
+	local _y2 = -eig2*eig2y
+	local x_draw = table.y(exptab_10,num_t)
+	local y_draw = table.y(exptab_11,num_t)
+    
+	local p1= user.vector.create(x_draw,y_draw)
+	user.vector.value(p1) = vector(_x1,_y1)
+	local p2= user.vector.create(x_draw,y_draw)
+	user.vector.value(p2) = vector(-_x1,-_y1)
+	if eig1 > 0
+		user.vector.group(p1) = 'Tensile'
+		user.vector.group(p2) = 'Tensile'
+	else
+		user.vector.group(p1) = 'Compression'
+		user.vector.group(p2) = 'Compression'
+	end_if
+	
+	p1= user.vector.create(x_draw,y_draw)
+	user.vector.value(p1) = vector(_x2,_y2)
+	p2= user.vector.create(x_draw,y_draw)
+	user.vector.value(p2) = vector(-_x2,-_y2)
+	if eig2 > 0
+		user.vector.group(p1) = 'Tensile'
+		user.vector.group(p2) = 'Tensile'
+	else
+		user.vector.group(p1) = 'Compression'
+		user.vector.group(p2) = 'Compression'
+	end_if
+end
+def delete_vector		;清除原有用户向量
+	loop foreach local p user.vector.list 
+		v = user.vector.delete(p) 
+	end_loop
+end
+def copy_data
+	m_xx = table.y(exptab_14 ,num_h)
+	m_xy = table.x(exptab_15 ,num_h)
+    m_xz = table.y(exptab_15 ,num_h)
+	m_yx = table.y(exptab_16 ,num_h)
+	m_yy = table.x(exptab_17 ,num_h)
+    m_yz = table.y(exptab_17 ,num_h)
+    m_zx = table.y(exptab_18 ,num_h)
+	m_zy = table.x(exptab_19 ,num_h)
+    m_zz = table.y(exptab_19 ,num_h)
+	hit_begin = table.x(exptab_5 ,num_h)
+	M_0 = table.y(exptab_20,num_h)
+	M_w = table.y(exptab_21,num_h)
+end
+
+def assign_data
+
+	table.x(exptab_12,num_h) = m_1
+	table.y(exptab_12,num_h) = m_2
+    table.y(exptab_13,num_h) = m_3
+	table.y(exptab_20,num_h) = M_0
+	table.y(exptab_21,num_h) = M_w
+    table.y(exptab_50,num_h) = value_R
+	
+end

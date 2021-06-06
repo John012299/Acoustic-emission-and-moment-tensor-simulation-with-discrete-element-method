@@ -1,0 +1,12 @@
+set echo off
+call look_AE_3D.dat
+set echo on
+
+ball group 'specimen'
+
+; record AE events
+@AE_init
+history @hit_num
+history @initial_en
+history @now_en
+history @delte_en
