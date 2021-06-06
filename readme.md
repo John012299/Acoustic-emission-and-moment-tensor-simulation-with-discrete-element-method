@@ -5,9 +5,9 @@
 - Codes in main2D.p2dat and main3D.p3dat need to be copied to the main program before the statement that executes the cycle calculation.
 ## Result
 ### 2D simulation
-![Image text](https://github.com/John012299/img-folder/blob/main/AE%20and%20moment%20tensor%20simulation/Fig%207(a).png)
-- Direct tension test
-![Image text](https://github.com/John012299/img-folder/blob/main/AE%20and%20moment%20tensor%20simulation/Fig%207(b).png)
+![Image text](https://github.com/John012299/img-folder/blob/main/AE%20and%20moment%20tensor%20simulation/Fig%207(a).png)  
+- Direct tension test  
+![Image text](https://github.com/John012299/img-folder/blob/main/AE%20and%20moment%20tensor%20simulation/Fig%207(b).png)  
 - Brazilian split test
 ![Image text](https://github.com/John012299/img-folder/blob/main/AE%20and%20moment%20tensor%20simulation/Fig%207(c).png)
 - Direct shear test
