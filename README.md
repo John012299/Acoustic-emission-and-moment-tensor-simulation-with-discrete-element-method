@@ -20,4 +20,4 @@
 - Direct shear test
 ## Reference
 - Zhao Y, Zhao G, Zhou J, et al. Failure mechanism analysis of rock in particle discrete element method simulation based on moment tensors[J]. Computers and Geotechnics, 2021, 136: 104215.  
-[https://authors.elsevier.com/a/1d4BY,63b%7EukUN](https://www.sciencedirect.com/science/article/pii/S0266352X21002135?via%3Dihub)
+[https://www.sciencedirect.com/science/article/pii/S0266352X21002135?via%3Dihub](https://www.sciencedirect.com/science/article/pii/S0266352X21002135?via%3Dihub)
